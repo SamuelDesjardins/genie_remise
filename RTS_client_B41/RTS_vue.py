@@ -5,7 +5,7 @@ from tkinter import ttk
 from helper import Helper
 from RTS_divers import *
 from chargeurdimages import *
-from RTS_client_B41.RTS_modele import Tour
+#from RTS_client_B41.RTS_modele import Tour
 #from test.test_tracemalloc import frame
 
 class Vue():
@@ -40,6 +40,7 @@ class Vue():
         self.creercadres(urlserveur,monnom,testdispo)
         #pour identifier le bouton
         self.lebouton=None
+                   
     
     # Appeler apres l'initialisation de la partie
     def initialiseravecmodele(self):
@@ -66,6 +67,7 @@ class Vue():
         self.creercadremaison(coul[0])
         self.creercadrecaserne(coul[0])
         self.creercadretour(coul[0])
+        self.creercadresupprimerbatiment()
 
         self.creerchatter()
         # on affiche les maisons, point de depart des divers joueurs
@@ -86,6 +88,12 @@ class Vue():
         
         self.canevas.xview_moveto(pctx)
         self.canevas.yview_moveto(pcty)
+        
+    def creercadresupprimerbatiment(self):
+        self.cadresupprimerbatiment=Frame(self.canevasaction.config(scrollregion=(0,-270,1000,2000)))
+        btn=Button(self.cadresupprimerbatiment,text="Supprimer batiment")
+        btn.bind("<Button>",self.supprimerbatiment)
+        btn.pack()    
     
     def creercadreouvrier(self,coul,artefact):
         self.cadreouvrier=Frame(self.canevasaction.config(scrollregion=(0,-270,1000,2000)))
@@ -121,13 +129,6 @@ class Vue():
         btn_archer.bind("<Button>",self.creerarcher)
         btn_soldat.pack()
         btn_archer.pack()
-    def creercadredruide(self, coul):
-        self.cadredruide=Frame(self.canevasaction)
-        #btn_bou=Button(self.cadredruide, text="créer Le BOU!")
-        btn_druide=Button(self.cadredruide, text="mythocondrie")
-        btn_druide.bind("<Button>",self.creerdruide)
-        #btn_bou.pack()
-        btn_druide.pack()
              
 ###### LES CADRES ############################################################################################        
     # Appel de la crÃ©ation des divers cadre   
@@ -340,7 +341,8 @@ class Vue():
         # on attache (bind) desF Ã©vÃ©nements soit aux objets eux mÃªme
         self.canevas.bind("<Button-1>",self.annuleraction)
         self.canevas.bind("<Button-3>",self.construirebatiment)
-        # faire une multiselection
+        
+               # faire une multiselection
         self.canevas.bind("<Shift-Button-1>",self.selectdebuter)
         self.canevas.bind("<Shift-B1-Motion>",self.selectafficher)
         self.canevas.bind("<Shift-ButtonRelease-1>",self.selectfinir)
@@ -351,6 +353,7 @@ class Vue():
         # ALL va réagir à n'importe quel dessin
         # sinon on spécifie un tag particulier, exemple avec divers tag, attaché par divers événements
         self.canevas.tag_bind("batiment","<Button-1>",self.ajoutselection)
+        self.canevas.tag_bind("batiment","<Double-Button-3>",self.choisirbatiment)
         self.canevas.tag_bind("perso","<Button-1>",self.ajoutselection)
         self.canevas.tag_bind("arbre","<Button-1>",self.ramasserressource)
         self.canevas.tag_bind("aureus","<Button-1>",self.ramasserressource)
@@ -652,7 +655,7 @@ class Vue():
     def afficherbatiment(self,joueur,batiment):
         coul=self.modele.joueurs[joueur].couleur[0]
         self.canevas.create_image(batiment.x,batiment.y,image=self.images[batiment.image],
-                                    tags=(self.parent.monnom,batiment.id,"artefact","batiment",batiment.montype))
+                                    tags=(joueur,batiment.id,"artefact","batiment",batiment.montype))
         #self.canevas.create_rectangle(50, 0, 100, 50, fill='red',tags=(self.parent.monnom,batiment.id,"artefact","batiment",batiment.montype))        
         couleurs={0:"",
                   1:"light green",
@@ -790,6 +793,29 @@ class Vue():
         rep=self.parent.resetpartie()
     ### FIN des methodes pour lancer la partie
     
+    def choisirbatiment(self, event):
+        print("In menu droit")
+        #tags=(joueur,batiment.id,"artefact","batiment",batiment.montype))
+        tags=self.canevas.gettags(CURRENT)
+        if self.monnom == tags[0]:
+            self.action.persochoisi=tags
+            self.action.affichersupprimerbatiment()
+            
+    def supprimerbatiment(self, event):
+        print(self.action.persochoisi)
+        sorte=self.action.persochoisi[3]
+        sontype=self.action.persochoisi[4]
+        sonid=self.action.persochoisi[1]
+        action=[self.monnom,"supprimerbatiment",[sorte, sontype, sonid]]
+        self.parent.actionsrequises=action
+        self.canevasaction.delete(self.action.widgetsactifs)
+        self.action.__init__(self)        
+    
+    def deletedclick(self):
+        self.mestags=self.canevas.gettags(CURRENT)
+        if "batiment" in self.mestags:         
+            if self.itemclc:
+                self.indexid.delete(self.itemclc)
     
 # Singleton (mais pas automatique) sert a conserver les manipulations du joueur pour demander une action
 class Action():
@@ -840,8 +866,16 @@ class Action():
                                                 anchor=CENTER)
         elif "druide" in self.parent.mestags:
             self.widgetsactifs=self.parent.canevasaction.create_window(100,180,
-                                                window=self.parent.cadredruide,
+                                                window=self.parent.cadretour,
                                                 anchor=CENTER)
+     
+    def affichersupprimerbatiment(self):
+        if self.widgetsactifs:
+            self.parent.canevasaction.delete(self.widgetsactifs)  
+        self.widgetsactifs=self.parent.canevasaction.create_window(100,180,
+                                                window=self.parent.cadresupprimerbatiment,
+                                                anchor=CENTER)
+     
             
     def affichercommandemaison(self):   
         self.widgetsactifs=self.parent.canevasaction.create_window(100,180,

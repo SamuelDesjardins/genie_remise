@@ -206,8 +206,7 @@ class Ours():
             self.dir=self.dir+"B"
         else:
             self.dir=self.dir+"H"
-            
-            
+                        
 class Cochon():
     def __init__(self,parent,id,x,y):
         self.parent=parent
@@ -747,9 +746,18 @@ class Joueur():
                       "ramasserressource":self.ramasserressource,
                       "chasserressource":self.chasserressource,
                       "construirebatiment":self.construirebatiment,
+                      "supprimerbatiment":self.supprimerbatiment,
                       "chatter":self.chatter}
         # on va creer une maison comme centre pour le joueur
         self.creerpointdorigine(x,y)
+    
+    def supprimerbatiment(self, param):
+        sorte,sontype,sonid=param
+        print(sorte, sontype, sonid)
+        obj=self.batiments[sontype][sonid]
+        print(obj)
+        self.batiments[sontype].pop(sonid)
+        self.parent.ressourcemorte.append(obj)
         
     def chatter(self,param):
         txt,envoyeur,receveur=param
@@ -768,10 +776,6 @@ class Joueur():
         for i in troupe:
             for j in self.persos.keys():
                 if j=="ouvrier":
-                    if i in self.persos[j]:
-                        proie=self.parent.biotopes[typeress][idress]
-                        self.persos[j][i].chasserressource(typeress,idress,proie)
-                if j=="soldat":
                     if i in self.persos[j]:
                         proie=self.parent.biotopes[typeress][idress]
                         self.persos[j][i].chasserressource(typeress,idress,proie)
