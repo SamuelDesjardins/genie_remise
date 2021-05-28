@@ -718,10 +718,10 @@ class Joueur():
         self.monchat=[]
         self.chatneuf=0
         self.ressourcemorte=[]
-        self.ressources={"nourriture":200,
-                         "arbre":200,
-                         "roche":200,
-                         "aureus":200}
+        self.ressources={"nourriture":50,
+                         "arbre":0,
+                         "roche":0,
+                         "aureus":0}
         
         self.persos={"ouvrier":{},
                     "soldat":{},

@@ -505,8 +505,8 @@ class Vue():
         
     def construirebatiment(self,evt):
         self.mestags=self.canevas.gettags(CURRENT)
-        cout_En_Bois = 50
-        cout_En_Roche = 50
+        cout_En_Bois = 100
+        cout_En_Roche = 100
         ressources_Bois = self.modele.joueurs[self.parent.monnom].ressources["arbre"] - cout_En_Bois
         ressources_Roche = self.modele.joueurs[self.parent.monnom].ressources["roche"] - cout_En_Roche
         
@@ -544,33 +544,36 @@ class Vue():
         x,y=evt.x,evt.y
 
         cout_En_Nourriture = 50
+        cout_En_Aureus = 50
         ressourcesActuelleJoueur = self.modele.joueurs[self.parent.monnom].ressources["nourriture"] - cout_En_Nourriture
+        ressourcesActuelleJoueur_Aureus = self.modele.joueurs[self.parent.monnom].ressources["aureus"] - cout_En_Aureus
         
-        if ressourcesActuelleJoueur >= 0:
+        if ressourcesActuelleJoueur >= 0 & ressourcesActuelleJoueur_Aureus >= 0:
 
             print("creation soldat")
             pos=(self.canevas.canvasx(evt.x),self.canevas.canvasy(evt.y))
             action=[self.parent.monnom,"creerperso",["soldat",self.mestags[4],self.mestags[1],pos]] 
             self.modele.joueurs[self.parent.monnom].ressources["nourriture"]-= cout_En_Nourriture
+            self.modele.joueurs[self.parent.monnom].ressources["aureus"]-= cout_En_Aureus
             self.parent.actionsrequises=action
             self.annuleraction(evt) 
     
     def creerdruide(self,evt):
         x,y=evt.x,evt.y
-        print("creation druide")
-        pos=(self.canevas.canvasx(evt.x),self.canevas.canvasy(evt.y))
-        action=[self.parent.monnom,"creerperso",["druide",self.mestags[4],self.mestags[1],pos]] 
-        self.parent.actionsrequises=action
-        self.annuleraction(evt)
+        cout_En_Nourriture = 50
+        cout_En_Aureus = 150
+        ressourcesActuelleJoueur = self.modele.joueurs[self.parent.monnom].ressources["nourriture"] - cout_En_Nourriture
+        ressourcesActuelleJoueur_Aureus = self.modele.joueurs[self.parent.monnom].ressources["aureus"] - cout_En_Aureus
         
-    def creerarcher(self,evt):
-        x,y=evt.x,evt.y
-        print("creation archer")
-        pos=(self.canevas.canvasx(evt.x),self.canevas.canvasy(evt.y))
-        action=[self.parent.monnom,"creerperso",["archer",self.mestags[4],self.mestags[1],pos]] 
-        self.parent.actionsrequises=action
-        self.annuleraction(evt)
-
+        if ressourcesActuelleJoueur >= 0: 
+            if ressourcesActuelleJoueur_Aureus >= 0:
+                print("creation druide")
+                pos=(self.canevas.canvasx(evt.x),self.canevas.canvasy(evt.y))
+                action=[self.parent.monnom,"creerperso",["druide",self.mestags[4],self.mestags[1],pos]] 
+                self.modele.joueurs[self.parent.monnom].ressources["nourriture"]-= cout_En_Nourriture
+                self.modele.joueurs[self.parent.monnom].ressources["aureus"]-= cout_En_Aureus
+                self.parent.actionsrequises=action
+                self.annuleraction(evt)
            
     def creerouvrier(self,evt): 
         x,y=evt.x,evt.y
@@ -590,7 +593,7 @@ class Vue():
         x,y=evt.x,evt.y
         
         cout_En_Nourriture = 50
-        cout_En_Bois = 20
+        cout_En_Bois = 50
         
         ressources_En_Nourriture_Joueur = self.modele.joueurs[self.parent.monnom].ressources["nourriture"] - cout_En_Nourriture
         ressources_En_Bois_Joueur = self.modele.joueurs[self.parent.monnom].ressources["arbre"] - cout_En_Bois
